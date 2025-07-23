@@ -21,10 +21,10 @@ At the moment, no hardware has been started. The first step is to get all necess
 
 - 16K ROM
 - 32K RAM
-- 68B09 Processor with a 7.3728MHz crystal (1.8432MHz clock)
-- 115200 Baud serial interface, RS232 specification voltage levels
-- Microsoft Extended BASIC, as used in the Tandy Coco 2 (modified by Grant)
-- My own Monitor
+- 68B09P Processor with a 7.3728MHz crystal (1.8432MHz clock)
+- 68B50 UART used at 115200 Baud (RS232 standard asynchronous serial port)
+- can run: 16kB ROM Microsoft Extended BASIC, as used in the Tandy Coco 2 (modified by Grant)
+- can run: 16kB EKMonitor
 
 ## Memory map
 
@@ -48,7 +48,7 @@ CocoBasic.bin file produced is ready for your EEPROM burner with the correcte si
 
 ## EKMonitor16kB ROM
 
-EKMonitor16kB is...
+EKMonitor16kB is my own monitor wrote in 6809 assembly language. Currently, comming from my first project RedBoard-1.
 
 Make EKMonitor.bin :
 
