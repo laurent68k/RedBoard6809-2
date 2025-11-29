@@ -1,0 +1,86 @@
+Name     Glue6809;
+PartNo   1;
+Date     2025-11-29;
+Revision 01;
+Designer FAVARD Laurent;
+Company  laurent68k;
+Assembly None;
+Location  France;
+Device   p22v10;
+
+/* 
+    INPUT PINS: Addresse bus
+ */
+
+PIN   1 = A15;
+PIN   2 = A14;
+PIN   3 = A13;
+PIN   4 = A12;
+PIN   5 = A11;
+PIN   6 = A10;
+PIN   7 = A9;
+PIN   8 = A8;
+PIN   9 = A7;
+PIN  10 = A6;
+PIN  11 = A5;
+PIN  13 = A4;
+
+/* 
+    OUTPUT PINS: Devices /CS
+ */
+
+PIN  14 = !CSFREE0;
+PIN  15 = !CSFREE3;
+PIN  16 = !CSFREE2;
+PIN  17 = !CSFREE1;
+PIN  18 = !CSPIA;
+PIN  19 = !CSUARTC64;
+PIN  20 = !CSUARTUSB;
+PIN  21 = !CSPTM;
+PIN  22 = !CSRAM;
+PIN  23 = !CSROM;
+
+/*
+    Equations (! = NOT & = AND # = OR $ = XOR)
+
+    Memory map
+
+      BASE adress            AREA             Signal             
+
+    - %11XX XXXX XXXX XXXX   $C000-$FFFF      /CSROM  
+
+    - %1011 1111 0001 XXXX   $BF10-$BFFF      /CSFREE3       
+    - %1011 1110 0010 XXXX   $BE20-$BF0F      /CSFREE2       
+    - %1011 1101 0011 XXXX   $BD30-$BE1F      /CSFREE1       
+    - %1011 1100 0100 XXXX   $BC40-$BD2F      /CSFREE0 
+
+    - %1011 1100 0011 XXXX   $BC30-$BC3F      /CSPTM         
+    - %1011 1100 0010 XXXX   $BC20-$BC2F      /CSPIA         
+    - %1011 1100 0001 XXXX   $BC10-$BC1F      /CSUARTC64     
+    - %1011 1100 0000 XXXX   $BC00-$BC0F      /CSUARTUSB   
+
+    -                        $8000-$BBFF      ...Area not used
+    
+    - %0XXX XXXX XXXX XXXX   $0000-$7FFF      /CSRAM
+
+ */
+
+CSROM = A15 & A14;
+
+CSFREE3 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (!A7 & !A6 & !A5 & A4); 
+
+CSFREE2 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & !A8) & (!A7 & !A6 & A5 & !A4); 
+
+CSFREE1 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & A8) & (!A7 & !A6 & A5 & A4); 
+
+CSFREE0 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & A6 & !A5 & !A4); 
+
+CSPTM = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & A5 & A4); 
+
+CSPIA = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & A5 & !A4); 
+
+CSUARTC64 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & A4); 
+
+CSUARTUSB = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & !A4); 
+
+CSRAM = !A15;
