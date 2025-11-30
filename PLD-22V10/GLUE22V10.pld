@@ -49,10 +49,10 @@ PIN  23 = !CSROM;
 
     - %11XX XXXX XXXX XXXX   $C000-$FFFF      /CSROM  
 
-    - %1011 1111 0001 XXXX   $BF10-$BFFF      /CSFREE3       
-    - %1011 1110 0010 XXXX   $BE20-$BF0F      /CSFREE2       
-    - %1011 1101 0011 XXXX   $BD30-$BE1F      /CSFREE1       
-    - %1011 1100 0100 XXXX   $BC40-$BD2F      /CSFREE0 
+    - %1011 1111 00XX XXXX   $BF00-$BF3F      /CSFREE3       
+    - %1011 1110 00XX XXXX   $BE00-$BE3F      /CSFREE2       
+    - %1011 1101 00XX XXXX   $BD00-$BD3F      /CSFREE1       
+    - %1011 1100 01XX XXXX   $BC40-$BC7F      /CSFREE0 
 
     - %1011 1100 0011 XXXX   $BC30-$BC3F      /CSPTM         
     - %1011 1100 0010 XXXX   $BC20-$BC2F      /CSPIA         
@@ -67,13 +67,13 @@ PIN  23 = !CSROM;
 
 CSROM = A15 & A14;
 
-CSFREE3 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (!A7 & !A6 & !A5 & A4); 
+CSFREE3 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (!A7 & !A6); 
 
-CSFREE2 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & !A8) & (!A7 & !A6 & A5 & !A4); 
+CSFREE2 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & !A8) & (!A7 & !A6); 
 
-CSFREE1 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & A8) & (!A7 & !A6 & A5 & A4); 
+CSFREE1 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & A8) & (!A7 & !A6); 
 
-CSFREE0 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & A6 & !A5 & !A4); 
+CSFREE0 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & A6); 
 
 CSPTM = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & A5 & A4); 
 

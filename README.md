@@ -34,14 +34,24 @@ At the moment, no hardware has been started. The first step is to get all necess
   AREA          SIZE                            USAGE           SIGNAL            Address used and ghost
 
 - C000-FFFF     16K                             ROM             /CSROM            -
-- BF10-BFFF     140 bytes                       FREE 3          /CSFREE3          -
-- BE20-BF0F     240 bytes                       FREE 2          /CSFREE2          -
-- BD30-BE1F     240 bytes                       FREE 1          /CSFREE1          -
-- BC40-BD2F     240 bytes                       FREE 0          /CSFREE0          -
+
+- BF40-BFFF     192 bytes                       FREE SPACE     
+- BF00-BF3F     64 bytes                        FREE 3          /CSFREE3          -
+
+- BE40-BEFF     192 bytes                       FREE SPACE     
+- BE00-BE3F     64 bytes                        FREE 2          /CSFREE2          -
+
+- BD40-BDFF     192 bytes                       FREE SPACE     
+- BD00-BD3F     64 bytes                        FREE 1          /CSFREE1          -
+
+- BC80-BCFF     128 bytes                       FREE SPACE     
+- BC40-BC7F     64 bytes                        FREE 0          /CSFREE0          -
+
 - BC30-BC3F     8 bytes used in 16 possible     PTM6840         /CSPTM            $BC30...$BC37
 - BC20-BC2F     4 bytes used in 16 possible     PIA6821         /CSPIA            $BC20...$BC23
 - BC10-BC1F     2 bytes used in 16 possible     UART6850_C64    /CSUART_C64       $BC20...$BC21
 - BC00-BC0F     2 bytes used in 16 possible     UART6850_USB    /CSUART_USB       $BC00...$BC01
+
 - 8000-BBFF     15K                             FREE SPACE      -                 -
 - 0000-7FFF     32K                             RAM 62256       /CSROM            -
 
