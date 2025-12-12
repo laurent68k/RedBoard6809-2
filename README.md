@@ -109,6 +109,11 @@ For example :
 
 screen /dev/tty.PL2203 115200
 
+Prolific adapter/RedBoard-1:    screen /dev/cu.usbserial-1440 9600
+FTDI UART-USB:                  screen /dev/cu.usbserial-A5069RR4 115200
+
+
+
 ### Windows
 
 
