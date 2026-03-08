@@ -1,7 +1,7 @@
 Name     Glue6809;
 PartNo   1;
-Date     2025-11-29;
-Revision 01;
+Date     2026-03-09;
+Revision 02;
 Designer FAVARD Laurent;
 Company  laurent68k;
 Assembly None;
@@ -45,23 +45,23 @@ PIN  23 = !CSROM;
 
     Memory map
 
-      BASE adress            AREA             Signal             
+      BASE adress            AREA             Signal        Size
 
-    - %11XX XXXX XXXX XXXX   $C000-$FFFF      /CSROM  
+    - %11XX XXXX XXXX XXXX   $C000-$FFFF      /CSROM        16KB
 
-    - %1011 1111 00XX XXXX   $BF00-$BF3F      /CSFREE3       
-    - %1011 1110 00XX XXXX   $BE00-$BE3F      /CSFREE2       
-    - %1011 1101 00XX XXXX   $BD00-$BD3F      /CSFREE1       
-    - %1011 1100 01XX XXXX   $BC40-$BC7F      /CSFREE0 
+    - %1011 1111 00XX XXXX   $BF00-$BF3F      /CSFREE3      64 Bytes
+    - %1011 1110 00XX XXXX   $BE00-$BE3F      /CSFREE2      64 Bytes
+    - %1011 1101 00XX XXXX   $BD00-$BD3F      /CSFREE1      64 Bytes
+    - %1011 1100 01XX XXXX   $BC40-$BC7F      /CSFREE0      64 Bytes
 
-    - %1011 1100 0011 XXXX   $BC30-$BC3F      /CSPTM         
-    - %1011 1100 0010 XXXX   $BC20-$BC2F      /CSPIA         
-    - %1011 1100 0001 XXXX   $BC10-$BC1F      /CSUARTC64     
-    - %1011 1100 0000 XXXX   $BC00-$BC0F      /CSUARTUSB   
+    - %1011 1100 0011 XXXX   $BC30-$BC3F      /CSPTM        16 Bytes
+    - %1011 1100 0010 XXXX   $BC20-$BC2F      /CSPIA        16 Bytes
+    - %1011 1100 0001 XXXX   $BC10-$BC1F      /CSUARTC64    16 Bytes
+    - %1011 1100 0000 XXXX   $BC00-$BC0F      /CSUARTUSB    16 Bytes
 
     -                        $8000-$BBFF      ...Area not used
     
-    - %0XXX XXXX XXXX XXXX   $0000-$7FFF      /CSRAM
+    - %0XXX XXXX XXXX XXXX   $0000-$7FFF      /CSRAM        32 KB
 
  */
 
