@@ -34,8 +34,8 @@ PIN  15 = !CSFREE1;
 PIN  16 = !CSFREE2;
 PIN  17 = !CSFREE3;
 PIN  18 = !CSPIA;
-PIN  19 = !CSUARTC64;
-PIN  20 = !CSUARTUSB;
+PIN  19 = !CSC64;
+PIN  20 = !CSUSB;
 PIN  21 = !CSPTM;
 PIN  22 = !CSRAM;
 PIN  23 = !CSROM;
@@ -45,42 +45,48 @@ PIN  23 = !CSROM;
 
     Memory map
 
-      BASE adress            AREA             Signal        Size
+      BASE adress             AREA                                                              Signal        Size
 
-    - %11XX XXXX XXXX XXXX   $C000-$FFFF      /CSROM        16KB
+    - %11XX XXXX XXXX XXXX                                                    $C000-$FFFF       /CSROM        16KB
 
-    - %1011 1111 00XX XXXX   $BF00-$BF3F      /CSFREE3      64 Bytes
-    - %1011 1110 00XX XXXX   $BE00-$BE3F      /CSFREE2      64 Bytes
-    - %1011 1101 00XX XXXX   $BD00-$BD3F      /CSFREE1      64 Bytes
-    - %1011 1100 01XX XXXX   $BC40-$BC7F      /CSFREE0      64 Bytes
+    - %1011 1111 11XX XXXX    1011 1111 1100 0000     1011 1111 1111 1111     BFC0 -> BFFF      /CSFREE3      64 bytes
+    - %1011 1111 10XX XXXX    1011 1111 1000 0000     1011 1111 1011 1111     BF80 -> BFBF      /CSFREE2      64 bytes
+    - %1011 1111 01XX XXXX    1011 1111 0100 0000     1011 1111 0111 1111     BF40 -> BF7F      /CSFREE1      64 bytes
+    - %1011 1110 00XX XXXX    1011 1110 0000 0000     1011 1110 0011 1111     BF00 -> BF3F      /CSFREE0      64 bytes
 
-    - %1011 1100 0011 XXXX   $BC30-$BC3F      /CSPTM        16 Bytes
-    - %1011 1100 0010 XXXX   $BC20-$BC2F      /CSPIA        16 Bytes
-    - %1011 1100 0001 XXXX   $BC10-$BC1F      /CSUARTC64    16 Bytes
-    - %1011 1100 0000 XXXX   $BC00-$BC0F      /CSUARTUSB    16 Bytes
 
-    -                        $8000-$BBFF      ...Area not used
-    
-    - %0XXX XXXX XXXX XXXX   $0000-$7FFF      /CSRAM        32 KB
+    - %1011 1111 00XX XXXX                                                    $BF00-$BF3F       /CSFREE3      64 Bytes
+    - %1011 1110 00XX XXXX                                                    $BE00-$BE3F       /CSFREE2      64 Bytes
+    - %1011 1101 00XX XXXX                                                    $BD00-$BD3F       /CSFREE1      64 Bytes
+    - %1011 1100 01XX XXXX                                                    $BC40-$BC7F       /CSFREE0      64 Bytes
+
+    - %1011 1100 0011 XXXX                                                    $BC30-$BC3F       /CSPTM        16 Bytes
+    - %1011 1100 0010 XXXX                                                    $BC20-$BC2F       /CSPIA        16 Bytes
+    - %1011 1100 0001 XXXX                                                    $BC10-$BC1F       /CSUARC64     16 Bytes
+    - %1011 1100 0000 XXXX                                                    $BC00-$BC0F       /CSUSB        16 Bytes
+
+    -                                                                         $8000-$BBFF       ...Area not used
+
+    - %0XXX XXXX XXXX XXXX                                                    $0000-$7FFF       /CSRAM        32 KB
 
  */
 
 CSROM = A15 & A14;
 
-CSFREE3 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (!A7 & !A6); 
+CSFREE3 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (A7 & A6); 
 
-CSFREE2 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & !A8) & (!A7 & !A6); 
+CSFREE2 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (A7 & !A6); 
 
-CSFREE1 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & A8) & (!A7 & !A6); 
+CSFREE1 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & A8) & (!A7 & A6); 
 
-CSFREE0 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & A6); 
+CSFREE0 = (A15 & !A14 & A13 & A12) & (A11 & A10 & A9 & !A8) & (!A7 & !A6); 
 
 CSPTM = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & A5 & A4); 
 
 CSPIA = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & A5 & !A4); 
 
-CSUARTC64 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & A4); 
+CSC64 = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & A4); 
 
-CSUARTUSB = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & !A4); 
+CSUSB = (A15 & !A14 & A13 & A12) & (A11 & A10 & !A9 & !A8) & (!A7 & !A6 & !A5 & !A4); 
 
 CSRAM = !A15;

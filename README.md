@@ -1,13 +1,22 @@
 # RedBoard6809-2
 
-This project is the continuation of RedBoard-1, a 6809-based SBC. The difference between the both projects should be very slight:
+This project is the continuation of RedBoard-1, a 6809-based SBC. The difference between the both projects:
 
-- Using GAL instead of TTL circuits for address decoding
-- 16 kB ROM vs 8kB to handle CocoBasic Microsoft (Comming from Grant's SBC project) or my own Monitor.
+- Using GAL 22V10 instead of TTL circuits for address decoding
+- 16 kB ROM vs 8kB to handle CocoBasic Microsoft (Comming from Grant's SBC project), my Monitor ot zny other.
 - Fixed UART 115200 bauds communication via the CPU 7.3728 MHz crystal (removed 4060 frequency divider)
 - MAX 232 removed for a modern FTDI232 UART-USB adapter.
+- Optional second UART 68B50 to hzndle serial communication with a native C64 keyboard 
+- Optional PTM 68B40 asociated with a 4060
+- Optional second GAL 22V10 to generate a cartdridge /CS
+- 
 
 At the moment, no hardware has been started. The first step is to get all necessary software and take time to think about what's I want.
+The second, currently in progress, is to design a schematic.
+
+# A name
+
+Alix-9 could be the name of this simple board comming from the french language : "Appareil Léger d'Informatique eXpérimentale"
 
 ## Status
 
@@ -22,42 +31,37 @@ At the moment, no hardware has been started. The first step is to get all necess
 - 16K ROM
 - 32K RAM
 - 68B09P Processor with a 7.3728MHz crystal (1.8432MHz clock inside the CPU)
-- 68B50 UART used at 115200 Baud to communicate with a computer throught a FTDI232
-- 68B50 UART used to communicate with a Commodore C64 keyboard/Arduino Micro pro.
-- 68B40 PTM to generate a system time counter
-- can run: 16kB ROM Microsoft Extended BASIC, as used in the Tandy Coco 2 (modified by Grant)
-- can run: 16kB EKMonitor
-- can run what's you want.
+- 68B50 UART used at 115200 Baud to communicate with a computer through a FTDI232
+- 68B21 PIA
+- 4 free Chip select
+- 4 Expansion slot
+- Optional 68B50 UART used to communicate with a Commodore C64 keyboard/Arduino Micro pro.
+- Optional 68B40 PTM+4060 to generate a system time counter
+- Optional GAL 22V10 to add a cartdridge port chip select
+
 
 ## Memory map
 
-  AREA          SIZE                            USAGE           SIGNAL            Address used and ghost
+  AREA            SIZE                            USAGE             SIGNAL            Address used and ghost
 
-- C000-FFFF     16K                             ROM             /CSROM            -
+- C000-FFFF       16K                             ROM               /CSROM            -
 
-- BF40-BFFF     192 bytes                       FREE SPACE     
-- BF00-BF3F     64 bytes                        FREE 3          /CSFREE3          -
+- BFC0...BFFF     64 bytes                        FREE CS 3         /CSFREE0          -                        
+- BF80...BFBF     64 bytes                        FREE CS 2         /CSFREE0          -
+- BF40...BF7F     64 bytes                        FREE CS 1         /CSFREE0          -
+- BF00...BF3F     64 bytes                        FREE CS 0         /CSFREE0          -
 
-- BE40-BEFF     192 bytes                       FREE SPACE     
-- BE00-BE3F     64 bytes                        FREE 2          /CSFREE2          -
+- BC30...BC3F     8 bytes used in 16 possible     PTM6840           /CSPTM            $BC30...$BC37
+- BC20...BC2F     4 bytes used in 16 possible     PIA6821           /CSPIA            $BC20...$BC23
+- BC10...BC1F     2 bytes used in 16 possible     UART6850_C64      /CSC64            $BC20...$BC21
+- BC00...BC0F     2 bytes used in 16 possible     UART6850_USB      /CSUSB            $BC00...$BC01
 
-- BD40-BDFF     192 bytes                       FREE SPACE     
-- BD00-BD3F     64 bytes                        FREE 1          /CSFREE1          -
+- 8000...BBFF     15K                             FREE SPACE        -                 -
+- 0000...7FFF     32K                             RAM 62256         /CSROM            -
 
-- BC80-BCFF     128 bytes                       FREE SPACE     
-- BC40-BC7F     64 bytes                        FREE 0          /CSFREE0          -
+## Glue logic
 
-- BC30-BC3F     8 bytes used in 16 possible     PTM6840         /CSPTM            $BC30...$BC37
-- BC20-BC2F     4 bytes used in 16 possible     PIA6821         /CSPIA            $BC20...$BC23
-- BC10-BC1F     2 bytes used in 16 possible     UART6850_C64    /CSUART_C64       $BC20...$BC21
-- BC00-BC0F     2 bytes used in 16 possible     UART6850_USB    /CSUART_USB       $BC00...$BC01
-
-- 8000-BBFF     15K                             FREE SPACE      -                 -
-- 0000-7FFF     32K                             RAM 62256       /CSROM            -
-
-## CocoBasic ROM
-
-PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
+An IC PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
 
 ## CocoBasic ROM
 
