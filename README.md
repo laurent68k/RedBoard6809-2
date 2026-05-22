@@ -3,10 +3,10 @@
 This project is the continuation of RedBoard-1, a 6809-based SBC. The difference between the both projects:
 
 - Using GAL 22V10 instead of TTL circuits for address decoding
-- 16 kB ROM vs 8kB to handle CocoBasic Microsoft (Comming from Grant's SBC project), my Monitor ot zny other.
+- 16 kB ROM vs 8kB to handle CocoBasic Microsoft (Comming from Grant's SBC project), my Monitor or any other.
 - Fixed UART 115200 bauds communication via the CPU 7.3728 MHz crystal (removed 4060 frequency divider)
 - MAX 232 removed for a modern FTDI232 UART-USB adapter.
-- Optional second UART 68B50 to hzndle serial communication with a native C64 keyboard 
+- Optional second UART 68B50 to handle serial communication with a native C64 keyboard 
 - Optional PTM 68B40 asociated with a 4060
 - Optional second GAL 22V10 to generate a cartdridge /CS
 - 
@@ -35,9 +35,9 @@ Alix-9 could be the name of this simple board comming from the french language :
 - 68B21 PIA
 - 4 free Chip select
 - 4 Expansion slot
-- Optional 68B50 UART used to communicate with a Commodore C64 keyboard/Arduino Micro pro.
+- Optional second 68B50 UART used to communicate with a Commodore C64 keyboard/Arduino Micro pro.
 - Optional 68B40 PTM+4060 to generate a system time counter
-- Optional GAL 22V10 to add a cartdridge port chip select
+- Optional second GAL 16V8 to add a cartdridge port chip select /CSCART whithin a space of 4KB
 
 
 ## Memory map
@@ -51,21 +51,23 @@ Alix-9 could be the name of this simple board comming from the french language :
 - BF40...BF7F     64 bytes                        FREE CS 1         /CSFREE0          -
 - BF00...BF3F     64 bytes                        FREE CS 0         /CSFREE0          -
 
+- BC40...BEFF     704 bytes                       FREE SPACE
+
 - BC30...BC3F     8 bytes used in 16 possible     PTM6840           /CSPTM            $BC30...$BC37
 - BC20...BC2F     4 bytes used in 16 possible     PIA6821           /CSPIA            $BC20...$BC23
 - BC10...BC1F     2 bytes used in 16 possible     UART6850_C64      /CSC64            $BC20...$BC21
 - BC00...BC0F     2 bytes used in 16 possible     UART6850_USB      /CSUSB            $BC00...$BC01
 
 - 8000...BBFF     15K                             FREE SPACE        -                 -
+- 8000...7FFF     4K                              CARTRIDGE         /CSCART           -
 - 0000...7FFF     32K                             RAM 62256         /CSROM            -
 
 ## Glue logic
 
-An IC PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
+- An IC PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
+- The second GAL 16V8 can be used to decode the cartdridge space optionnally. I you dont' want that, to not install it and ignore in your monitor anything about this space.
 
 ## CocoBasic ROM
-
-CocoBasic is...
 
 Make CocoBasic.bin :
 
@@ -78,7 +80,7 @@ CocoBasic.bin file produced is ready for your EEPROM burner with the correct siz
 
 ## EKMonitor16kB ROM
 
-EKMonitor16kB is my own monitor wrote in 6809 assembly language. Currently, comming from my first project RedBoard-1.
+EKMonitor16kB is my own monitor in 6809 assembly language. Currently, comming from my first project RedBoard-1.
 
 Make EKMonitor.bin :
 
@@ -87,7 +89,7 @@ Make EKMonitor.bin :
 - Type: $ ./i6809asm EK6809Monitor.asm -bin
 - This will produce a EK6809Monitor.bin file
 
-EK6809Monitor.bin file produced is ready for your EEPROM burner with the correcte size of 16384 bytes for a 16kB device.
+EK6809Monitor.bin file produced is ready for your EEPROM burner with the correct size of 16384 bytes for a 16kB chip.
 
 ## i6809asm
 

@@ -1,0 +1,39 @@
+Name     Glue6809;
+PartNo   1;
+Date     2026-05-22;
+Revision 01;
+Designer FAVARD Laurent;
+Company  laurent68k;
+Assembly None;
+Location  France;
+Device   g16v8;
+
+/* 
+    INPUT PINS: Addresse bus
+ */
+
+PIN   1 = A15;
+PIN   2 = A14;
+PIN   3 = A13;
+PIN   4 = A12;
+
+/* 
+    OUTPUT PINS:
+ */
+
+PIN  19 = !CSCART;
+
+
+/*
+    Equations (! = NOT & = AND # = OR $ = XOR)
+
+    Memory map
+
+      BASE adress             AREA Covering                                                     Signal        Size
+
+    - %1000 XXXX XXXX XXXX    %1000 0000 0000 0000 -> 1000 1111 1111 1111    $8000-$8FFF        /CSCART       4 KB
+
+ */
+
+CSCART = (A15 & !A14 & !A13 & !A12); 
+

@@ -1,0 +1,23 @@
+
+CUPL(WM)        5.0a  Serial# 60008009
+Device          g16v8s  Library DLIB-h-40-9
+Created         Fri May 22 17:28:38 2026
+Name            Glue6809
+Partno          1
+Revision        01
+Date            2026-05-22
+Designer        FAVARD Laurent
+Company         laurent68k
+Assembly        None
+Location        France
+*QP20 
+*QF2194 
+*G0 
+*F0 
+*L00000 10011011101111111111111111111111
+*L02048 00000000001100010000000000000000
+*L02112 00000000011111111111111111111111
+*L02144 11111111111111111111111111111111
+*L02176 111111111111111110
+*C0D57
+*78E2
