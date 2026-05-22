@@ -9,7 +9,7 @@ Location  France;
 Device   p22v10;
 
 /* 
-    INPUT PINS: Addresse bus
+    INPUT PINS: Address bus
  */
 
 PIN   1 = A15;

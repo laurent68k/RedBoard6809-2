@@ -9,7 +9,7 @@ Location  France;
 Device   g16v8;
 
 /* 
-    INPUT PINS: Addresse bus
+    INPUT PINS: Address bus
  */
 
 PIN   1 = A15;
