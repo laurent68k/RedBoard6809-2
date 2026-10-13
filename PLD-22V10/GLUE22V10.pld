@@ -1,6 +1,6 @@
-Name     Glue6809;
+Name     GlueAlix32;
 PartNo   1;
-Date     2026-03-09;
+Date     2026-10-13;
 Revision 02;
 Designer FAVARD Laurent;
 Company  laurent68k;
@@ -52,7 +52,7 @@ PIN  23 = !CSROM;
     - %1011 1111 11XX XXXX    1011 1111 1100 0000 -> 1011 1111 1111 1111     BFC0 -> BFFF      /CSFREE3      64 bytes
     - %1011 1111 10XX XXXX    1011 1111 1000 0000 -> 1011 1111 1011 1111     BF80 -> BFBF      /CSFREE2      64 bytes
     - %1011 1111 01XX XXXX    1011 1111 0100 0000 -> 1011 1111 0111 1111     BF40 -> BF7F      /CSFREE1      64 bytes
-    - %1011 1111 00XX XXXX    1011 1110 0000 0000 -> 1011 1110 0011 1111     BF00 -> BF3F      /CSFREE0      64 bytes
+    - %1011 1111 00XX XXXX    1011 1111 0000 0000 -> 1011 1111 0011 1111     BF00 -> BF3F      /CSFREE0      64 bytes
 
     - BC40 -> BEFF      ...Area not decoded
 
