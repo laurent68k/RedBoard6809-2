@@ -21,7 +21,7 @@ PIN   4 = A12;
     OUTPUT PINS:
  */
 
-PIN  19 = !CSCART;
+PIN  19 = !CSCARD;
 
 
 /*
@@ -31,9 +31,9 @@ PIN  19 = !CSCART;
 
       BASE adress             AREA Covering                                                     Signal        Size
 
-    - %1000 XXXX XXXX XXXX    %1000 0000 0000 0000 -> 1000 1111 1111 1111    $8000-$8FFF        /CSCART       4 KB
+    - %1000 XXXX XXXX XXXX    %1000 0000 0000 0000 -> 1000 1111 1111 1111    $8000-$8FFF        /CSCARD       4 KB
 
  */
 
-CSCART = (A15 & !A14 & !A13 & !A12); 
+CSCARD = (A15 & !A14 & !A13 & !A12); 
 
