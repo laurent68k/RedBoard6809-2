@@ -1,72 +1,121 @@
-# RedBoard6809-2
+# Alix-32
 
 This project is the continuation of RedBoard-1, a 6809-based SBC. The difference between the both projects:
 
 - Using GAL 22V10 instead of TTL circuits for address decoding
-- 16 kB ROM vs 8kB to handle CocoBasic Microsoft (Comming from Grant's SBC project), my Monitor or any other.
+- 16 KB ROM vs 8KB to handle CocoBasic Microsoft (Comming from Grant's SBC project), my Monitor or any other.
 - Fixed UART 115200 bauds communication via the CPU 7.3728 MHz crystal (removed 4060 frequency divider)
 - MAX 232 removed for a modern FTDI232 UART-USB adapter.
-- Optional second UART 68B50 to handle serial communication with a native C64 keyboard 
-- Optional PTM 68B40 asociated with a 4060
-- Optional second GAL 22V10 to generate a cartdridge /CS
-- 
-
-At the moment, no hardware has been started. The first step is to get all necessary software and take time to think about what's I want.
-The second, currently in progress, is to design a schematic.
+- Optional second UART 68B50
+- Optional PTM 68B40 asociated with a HCT4060
+- Optional second GAL 16V8 to generate a cartdridge /CSCARD
+- 4 expansions slots
 
 # A name
 
-Alix-9 could be the name of this simple board comming from the french language : "Appareil Léger d'Informatique eXpérimentale"
+"Alix-32" could be the name of this small project, drawn from the French language for "Appareil Léger d'Informatique eXpérimentale", 
+a nod to the French clone of the TRS-80 MC-1, the Alice.
 
-## Status
+## Status, Work in progress
 
 - EKEmulator works (updated to the lastest Xcode and macOS)
 - i6809asm works (updated to the lastest Xcode and macOS)
 - CocoBasic can be assembled correctly. Tested and run on EKEmulator.
 - EKMonitor16kB can be assembled correctly. Tested and run on EKEmulator.
 
+The schematic is almost complete, and the printed circuit board is nearly finalized.
 
 ## Specification
 
-- 16K ROM
-- 32K RAM
+- 16KB ROM. On the PCB I use a 28C256 and a jumper to have a 2x16KB bank select.
+- 32KB RAM
 - 68B09P Processor with a 7.3728MHz crystal (1.8432MHz clock inside the CPU)
-- 68B50 UART used at 115200 Baud to communicate with a computer through a FTDI232
+- 68B50 UART used at 115200 Baud to communicate with a computer through a FTDI232. Fixed by the CPU crystal.
 - 68B21 PIA
 - 4 free Chip select
-- 4 Expansion slot
-- Optional second 68B50 UART used to communicate with a Commodore C64 keyboard/Arduino Micro pro.
-- Optional 68B40 PTM+4060 to generate a system time counter
-- Optional second GAL 16V8 to add a cartdridge port chip select /CSCART whithin a space of 4KB
+- 4 Expansion slots
+- Optional second 68B50 UART. In my case, I would like to use it with a Commodore C64 keyboard/Arduino Micro pro.
+- Optional 68B40 PTM and HCT4060 to generate a system time counter on /NMI
+- Optional second GAL 16V8 to add a cardridge port chip select /CSCARD whithin a space of 4KB
 
 
 ## Memory map
 
-  AREA            SIZE                            USAGE             SIGNAL            Address used and ghost
+Addr.	        Size	     Signal CS	Périphérique
+$0000 - $7FFF	32 KB	    /CSRAM	    RAM
+$8000 - $BBFF	15 KB     Not decoded
+$BC00 - $BC0F	16 bytes	/CSUSB	USB
+$BC10 - $BC1F	16 bytes	/CSC64	C64/UART
+$BC20 - $BC2F	16 bytes	/CSPIA	PIA
+$BC30 - $BC3F	16 bytes	/CSPTM	PTM
+$BC40 - $BF3F	768 bytes	Not decoded
+$BF00 - $BF3F	64 bytes	/CSFREE0	Libre 0
+$BF40 - $BF7F	64 bytes	/CSFREE1	Libre 1
+$BF80 - $BFBF	64 bytes	/CSFREE2	Libre 2
+$BFC0 - $BFFF	64 bytes	/CSFREE3	Libre 3
+$C000 - $FFFF	16 KB	    /CSROM	  ROM
 
-- C000-FFFF       16K                             ROM               /CSROM            -
 
-- BFC0...BFFF     64 bytes                        FREE CS 3         /CSFREE0          -                        
-- BF80...BFBF     64 bytes                        FREE CS 2         /CSFREE0          -
-- BF40...BF7F     64 bytes                        FREE CS 1         /CSFREE0          -
-- BF00...BF3F     64 bytes                        FREE CS 0         /CSFREE0          -
+FFFF +----------------------+
+     |        ROM           |
+C000 |      /CSROM          |
+     +----------------------+
 
-- BC40...BEFF     704 bytes                       FREE SPACE
-
-- BC30...BC3F     8 bytes used in 16 possible     PTM6840           /CSPTM            $BC30...$BC37
-- BC20...BC2F     4 bytes used in 16 possible     PIA6821           /CSPIA            $BC20...$BC23
-- BC10...BC1F     2 bytes used in 16 possible     UART6850_C64      /CSC64            $BC20...$BC21
-- BC00...BC0F     2 bytes used in 16 possible     UART6850_USB      /CSUSB            $BC00...$BC01
-
-- 8000...BBFF     15K                             FREE SPACE        -                 -
-- 8000...7FFF     4K                              CARTRIDGE         /CSCART           -
-- 0000...7FFF     32K                             RAM 62256         /CSROM            -
+BFFF +----------------------+
+     | FREE3  /CSFREE3      |
+BFC0 +----------------------+
+     | FREE2  /CSFREE2      |
+BF80 +----------------------+
+     | FREE1  /CSFREE1      |
+BF40 +----------------------+
+     | FREE0  /CSFREE0      |
+BF00 +----------------------+
+BF3F |                      |
+     |                      |
+     |   Free area          |
+BC40 |                      |
+BC3F +----------------------+
+     | PTM    /CSPTM        |  PTM 6840
+BC30 +----------------------+
+     | PIA    /CSPIA        |  PIA 6821
+BC20 +----------------------+
+     | C64    /CSC64        |  UART 6850 2 Optionnal.
+BC10 +----------------------+
+     | USB    /CSUSB        |  UART 6850 1
+BC00 +----------------------+
+BBFF |                      |
+     |   Not decoded        |
+8000 |                      |
+7FFF +----------------------+
+     |                      |
+0000 | RAM      /CSRAM      |
+     +----------------------+
 
 ## Glue logic
 
-- An IC PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
-- The second GAL 16V8 can be used to decode the cartdridge space optionnally. I you dont' want that, to not install it and ignore in your monitor anything about this space.
+- A PLD 22V10 Logic is used to decode the address bus with a range of 12 bits A15...A4 and provide all necessary /CS.
+- The second GAL 16V8 can be used to decode the cartdridge space optionnally. I you don't want that, do not install it and ignore in your monitor anything about this space.
 
+## Extend memory map with cardridge
+
+- The second optional GAL/PAL 16V8 allows to drive a new /CS for the cardridge port. In this case, I choose to add 4Kb.
+
+     ...
+     |                      |
+BC10 +----------------------+
+     | USB    /CSUSB        |  UART 6850 1
+BC00 +----------------------+
+BBFF |                      |
+9000 |   Not decoded        |
+     +----------------------+
+8FFF |                      |
+     |     CARDRIDGE        |  CARD 4Kb added
+8000 |                      |
+7FFF +----------------------+
+     |                      |
+0000 | RAM      /CSRAM      |
+     +----------------------+
+     
 ## CocoBasic ROM
 
 Make CocoBasic.bin :
@@ -118,18 +167,14 @@ screen /dev/tty.PL2203 115200
 Prolific adapter/RedBoard-1:    screen /dev/cu.usbserial-1440 9600
 FTDI UART-USB:                  screen /dev/cu.usbserial-A5069RR4 115200
 
-
-
 ### Windows
 
+I currently don't use Windows to communicate.
 
-
-## Contribute
 
 ## Usefull links
 
 Grant's 6-chip 6809 computer: Where I found CocoBasic and AS9. Very good page.
-
 http://searle.x10host.com/6809/Simple6809.html
 
 
@@ -137,4 +182,4 @@ http://searle.x10host.com/6809/Simple6809.html
 
 This project is free and can be reused as you want without any restrictions.
 
-2002/2025 FAVARD Laurent 6809 projects.
+2002/2026 FAVARD Laurent 6809 projects.
