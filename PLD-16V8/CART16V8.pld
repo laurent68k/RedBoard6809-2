@@ -1,4 +1,4 @@
-Name     Glue6809;
+Name     AlixCardridge;
 PartNo   1;
 Date     2026-05-22;
 Revision 01;
@@ -29,7 +29,7 @@ PIN  19 = !CSCARD;
 
     Memory map
 
-      BASE adress             AREA Covering                                                     Signal        Size
+      BASE address            AREA Covering                                                     Signal        Size
 
     - %1000 XXXX XXXX XXXX    %1000 0000 0000 0000 -> 1000 1111 1111 1111    $8000-$8FFF        /CSCARD       4 KB
 
