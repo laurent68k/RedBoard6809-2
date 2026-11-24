@@ -149,7 +149,7 @@ VT52Mode            rmb 1                                  		; 	VT-52 Terminal m
 					bra		OSStart
 					fcc		"6809"
 					fcb		3,0
-					fcb		$20,$25,$06,$02
+					fcb		$20,$26,$11,$24
 					fdb		FunctionsTable
 					
 OSStart:			;	Strategic init temporaly Stack pointer
