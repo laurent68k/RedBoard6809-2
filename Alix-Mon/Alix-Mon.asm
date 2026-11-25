@@ -3,7 +3,7 @@
 ;
 ;	Version:	2.0
 ;	Created:	2012 September 04	
-;	Updated:	2026 November 24
+;	Updated:	2026 November 25
 ;	Author:		Laurent Favard
 ;	Contact:	laurent68k@gmail.com
 ;
@@ -205,9 +205,7 @@ OSStart:			;	Strategic init temporaly Stack pointer
                     ;   Display system started
 RetAutoCart1:		andcc	#$A0                        ;   Enable all interrupts IRQ and FIRQ (E F H I N Z V C)
 
-                    ldx		#STRSystemStart1
-					lbsr	WriteString
-                    ldx		#STRSystemStart2
+                    ldx		#STRSystemStart
 					lbsr	WriteString
 
 					;	Automatic memory checking and size compute by step of 512 bytes
@@ -349,8 +347,17 @@ NoCartApp:			ldx		#STRSystemReady
 ;   Monitor Main loop to handle interaction with user
 ;	Command Line Interpreter
 
-Mainloop:			ldx		#STRPromptCLI
-					lbsr	WriteString
+Mainloop:		    tst     VT52Mode
+                	beq     _MainloopClassic
+
+                	ldx     #STRPromptVT52
+                	bra     _MainloopPrompt
+
+_MainloopClassic:
+                	ldx     #STRPromptCLI
+
+_MainloopPrompt:
+                	lbsr    WriteString
 					
 					ldx		#promptLine		
 					ldb		#PRTLINE_SIZE
@@ -390,9 +397,22 @@ FoundCmd:			puls	y								;	reload X with last table address
 
 ;	----------------------------------------------------------------------------------------------------
 ;	HELP Command
-mnHelp:				ldx		#STRHelp
-					lbsr	WriteString
-                	lbra	Mainloop
+mnHelp:
+                	tst     VT52Mode
+                	beq     _mnHelpClassic
+
+                    lbsr    VT52_ClearScreen
+                    lbsr    VT52_CursorHome
+					
+                	ldx     #STRHelpVT52
+                	bra     _mnHelpDisplay
+
+_mnHelpClassic:
+                	ldx     #STRHelp
+
+_mnHelpDisplay:
+                	lbsr    WriteString
+                	lbra    Mainloop
 ;   ----------------------------------------------------------------------------------------------------
 ;   VT52 Command
 ;   Syntax: VT52 ON
@@ -426,6 +446,9 @@ _mnVT52On:          leas    2,s                     ; discard saved X
 
                     lbsr    VT52_ClearScreen
                     lbsr    VT52_CursorHome
+
+                	ldx     #STRVT52Welcome
+                	lbsr    WriteString
 
                     lbra    Mainloop
 
@@ -1828,10 +1851,23 @@ Vector_reserved:
 ;   \015 = $0D  return
 ;   \012 = $0A  newline
 
-STRSystemStart1		fcc	"Alix-32 16kB\015\012\0"
-STRSystemStart2		fcc	"Favard Laurent 2003-2026\015\012\0"
+STRVT52Welcome:
+                	fcc "----------------------------------------\015\012"
+                	fcc "             ALIX-32 MONITOR             \015\012"
+                	fcc "              VT-52 TERMINAL              \015\012"
+                	fcc "----------------------------------------\015\012"
+                	fcc "\015\012"
+                	fcc " Terminal mode: VT-52 enabled\015\012"
+                	fcc " Type HELP for available commands\015\012"
+                	fcc "\0"
+
+STRSystemStart		fcc	"Alix-32 16kB\015\012"
+					fcc	"Favard Laurent 2003-2026\015\012"
+					fcc "\0"
 
 STRPromptCLI		fcc	"CLI>\0"
+STRPromptVT52   	fcc "ALIX>\0"
+
 STRNewLine			fcc	"\015\012\0"
 STRMemCalculated	fcc	"End of memory: $\0"
 ;STRMemSize			fcc "Size bytes: $\0"
@@ -1874,28 +1910,60 @@ system_sw1			fcc	"SW1 !\015\012\0"
 system_sw2			fcc	"SW2 !\015\012\0"
 system_sw3			fcc	"SW3 !\015\012\0"
 ;	----------------------------------------------------------------------------------------------------
-STRHelp				fcc "[HELP/?] : Commands list\015\012"
-                    fcc "[CLS]    : CLear Screen\015\012"
-					fcc	"[VER]    : VERsion\015\012"
-					fcc	"[MEMSIZE]: Memory size\015\012"
-					fcc	"[LIST]   : LIST contents of App Cartridge\015\012"
-					fcc "[RUN]    : RUN <AE> Run a program\015\012"
-					fcc "[LOAD]   : LOAD <AE> Load a program\015\012"
-					fcc	"[PEEK]   : READ <AE>\015\012"
-					fcc	"[POKE]   : WRITE <byte>,<AE>\015\012"
-					fcc	"[DUMP]   : DUMP <byte>,<AE>\015\012"
-					fcc	"[COPY]   : COPY <byte>,<SAE>,<DAE>\015\012"
-					fcc	"[ORI]    : ORI <mask>,<AE>\015\012"
-					fcc	"[ANDI]   : ANDI <mask>,<AE>\015\012"
-					fcc	"[BSET]   : BSET [0-7],<AE>\015\012"
-					fcc	"[BCLR]   : BCLR [0-7],<AE>\015\012"
-					fcc	"[SETPIA] : PIA set A/B,[I/O]\015\012"
-					fcc	"[RDPIA]  : PIA Read A/B\015\012"
-					fcc	"[WRPIA]  : PIA Write <byte>,A/B\015\012"
-					fcc	"[SW1/2/3]: SW interrupt\015\012"
-					fcc	"[MEMTEST]: MEMory TEST\015\012"
-					fcc	"[VT52]   : VT52 ON or OFF\015\012"
+;	Classic terminal mode HELP
+STRHelp				fcc "HELP/? : Commands list\015\012"
+                    fcc "CLS    : CLear Screen\015\012"
+					fcc	"VER    : VERsion\015\012"
+					fcc	"MEMSIZE: Memory size\015\012"
+					fcc	"LIST   : LIST contents of App Cartridge\015\012"
+					fcc "RUN    : RUN <AE> Run a program\015\012"
+					fcc "LOAD   : LOAD <AE> Load a program\015\012"
+					fcc	"PEEK   : READ <AE>\015\012"
+					fcc	"POKE   : WRITE <byte>,<AE>\015\012"
+					fcc	"DUMP   : DUMP <byte>,<AE>\015\012"
+					fcc	"COPY   : COPY <byte>,<SAE>,<DAE>\015\012"
+					fcc	"ORI    : ORI <mask>,<AE>\015\012"
+					fcc	"ANDI   : ANDI <mask>,<AE>\015\012"
+					fcc	"BSET   : BSET [0-7],<AE>\015\012"
+					fcc	"BCLR   : BCLR [0-7],<AE>\015\012"
+					fcc	"SETPIA : PIA set A/B,[I/O]\015\012"
+					fcc	"RDPIA  : PIA Read A/B\015\012"
+					fcc	"WRPIA  : PIA Write <byte>,A/B\015\012"
+					fcc	"SW1/2/3: SW interrupt\015\012"
+					fcc	"MEMTEST: MEMory TEST\015\012"
+					fcc	"VT52   : VT52 ON or OFF\015\012"
 					fcc "\0"
+;	VT-52 terminal mode HELP
+STRHelpVT52:
+					fcc     "----------------------------------------\015\012"
+					fcc     "               ALIX-32 HELP              \015\012"
+					fcc     "----------------------------------------\015\012"
+					fcc     "\015\012"
+
+					fcc     " SYSTEM\015\012"
+					fcc     "   HELP     Commands list\015\012"
+					fcc     "   CLS      Clear screen\015\012"
+					fcc     "   VER      Monitor version\015\012"
+					fcc     "   MEMSIZE  Available memory\015\012"
+					fcc     "\015\012"
+
+					fcc     " MEMORY\015\012"
+					fcc     "   PEEK     Read memory\015\012"
+					fcc     "   POKE     Write memory\015\012"
+					fcc     "   DUMP     Dump memory\015\012"
+					fcc     "   COPY     Copy memory\015\012"
+					fcc     "\015\012"
+
+					fcc     " PROGRAMS\015\012"
+					fcc     "   LIST     List applications\015\012"
+					fcc     "   RUN      Execute program\015\012"
+					fcc     "   LOAD     Load program\015\012"
+					fcc     "\015\012"
+
+					fcc     " TERMINAL\015\012"
+					fcc     "   VT52 ON  Enable VT-52 mode\015\012"
+					fcc     "   VT52 OFF Disable VT-52 mode\015\012"
+					fcc     "\0"
 
 ;	----------------------------------------------------------------------------------------------------
 CMDHelp				fcc "?\0"
