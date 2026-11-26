@@ -3,7 +3,7 @@
 ;
 ;	Version:	2.0
 ;	Created:	2012 September 04	
-;	Updated:	2026 November 25
+;	Updated:	2026 November 26
 ;	Author:		Laurent Favard
 ;	Contact:	laurent68k@gmail.com
 ;
@@ -398,21 +398,16 @@ FoundCmd:			puls	y								;	reload X with last table address
 ;	----------------------------------------------------------------------------------------------------
 ;	HELP Command
 mnHelp:
-                	tst     VT52Mode
-                	beq     _mnHelpClassic
+                    tst     VT52Mode
+                    beq     _mnHelpClassic
 
-                    lbsr    VT52_ClearScreen
-                    lbsr    VT52_CursorHome
-					
-                	ldx     #STRHelpVT52
-                	bra     _mnHelpDisplay
+                    lbsr    VT52_DisplayHelp
+                    lbra    Mainloop
 
 _mnHelpClassic:
-                	ldx     #STRHelp
-
-_mnHelpDisplay:
-                	lbsr    WriteString
-                	lbra    Mainloop
+                    ldx     #STRHelp
+                    lbsr    WriteString
+                    lbra    Mainloop
 ;   ----------------------------------------------------------------------------------------------------
 ;   VT52 Command
 ;   Syntax: VT52 ON
@@ -447,8 +442,19 @@ _mnVT52On:          leas    2,s                     ; discard saved X
                     lbsr    VT52_ClearScreen
                     lbsr    VT52_CursorHome
 
-                	ldx     #STRVT52Welcome
-                	lbsr    WriteString
+                    ; Top border
+                    ldx     #STRVT52WelcomeTop
+                    lbsr    WriteString
+
+                    ; ALIX-32 MONITOR title in reverse video
+                    lbsr    VT52_ReverseOn
+                    ldx     #STRVT52Title
+                    lbsr    WriteString
+                    lbsr    VT52_ReverseOff
+
+                    ; Remaining welcome message
+                    ldx     #STRVT52WelcomeInfo
+                    lbsr    WriteString
 
                     lbra    Mainloop
 
@@ -1141,6 +1147,136 @@ mnClear:			tst     VT52Mode
 _mnClearEnd:        lbra    Mainloop								
 
 ;	----------------------------------------------------------------------------------------------------
+; 	Display VT-52 HELP screen
+
+VT52_DisplayHelp:
+                    lbsr    VT52_ClearScreen
+                    lbsr    VT52_CursorHome
+
+                    ; Header
+                    lda     #0
+                    ldb     #0
+                    lbsr    VT52_CursorPosition
+
+                    lbsr    VT52_ReverseOn
+                    ldx     #STRVT52HelpHeader
+                    lbsr    WriteString
+                    lbsr    VT52_ReverseOff
+
+                    ; SYSTEM
+                    lda     #2
+                    ldb     #2
+                    ldx     #STRHelpSystem
+                    lbsr    VT52_WriteReverseAt
+
+                    lda     #3
+                    ldb     #2
+                    ldx     #STRHelpSystemCmd
+                    lbsr    VT52_WriteAt
+
+                    ; MEMORY
+                    lda     #5
+                    ldb     #2
+                    ldx     #STRHelpMemory
+                    lbsr    VT52_WriteReverseAt
+
+                    lda     #6
+                    ldb     #2
+                    ldx     #STRHelpMemoryCmd1
+                    lbsr    VT52_WriteAt
+
+                    lda     #7
+                    ldb     #2
+                    ldx     #STRHelpMemoryCmd2
+                    lbsr    VT52_WriteAt
+
+                    ; PROGRAMS
+                    lda     #9
+                    ldb     #2
+                    ldx     #STRHelpPrograms
+                    lbsr    VT52_WriteReverseAt
+
+                    lda     #10
+                    ldb     #2
+                    ldx     #STRHelpProgramsCmd
+                    lbsr    VT52_WriteAt
+
+                    ; HARDWARE
+                    lda     #12
+                    ldb     #2
+                    ldx     #STRHelpHardware
+                    lbsr    VT52_WriteReverseAt
+
+                    lda     #13
+                    ldb     #2
+                    ldx     #STRHelpHardwareCmd1
+                    lbsr    VT52_WriteAt
+
+                    lda     #14
+                    ldb     #2
+                    ldx     #STRHelpHardwareCmd2
+                    lbsr    VT52_WriteAt
+
+                    ; TERMINAL
+                    lda     #16
+                    ldb     #2
+                    ldx     #STRHelpTerminal
+                    lbsr    VT52_WriteReverseAt
+
+                    lda     #17
+                    ldb     #2
+                    ldx     #STRHelpTerminalCmd
+                    lbsr    VT52_WriteAt
+
+                    ; Bottom information
+                    lda     #21
+                    ldb     #2
+                    ldx     #STRHelpFooter
+                    lbsr    VT52_WriteAt
+
+                    ; Position for command prompt
+                    lda     #23
+                    ldb     #0
+                    lbsr    VT52_CursorPosition
+
+                    rts
+;	----------------------------------------------------------------------------------------------------
+; 	Display reverse video string at position
+; 	Input:
+;   A = row
+;   B = column
+;   X = string address
+
+VT52_WriteReverseAt:
+                    lbsr    VT52_CursorPosition
+                    lbsr    VT52_WriteReverse
+                    rts					
+;	----------------------------------------------------------------------------------------------------
+; 	Display string at VT-52 cursor position
+; 	Input:
+;   A = row
+;   B = column
+;   X = string address
+
+VT52_WriteAt:
+                    lbsr    VT52_CursorPosition
+                    lbsr    WriteString
+                    rts
+;	----------------------------------------------------------------------------------------------------
+; 	Display a reverse video string
+; 	Input:
+;   X = string address
+
+VT52_WriteReverse:
+                    pshs    x
+
+                    lbsr    VT52_ReverseOn
+
+                    puls    x
+                    lbsr    WriteString
+
+                    lbsr    VT52_ReverseOff
+                    rts					
 ;   ----------------------------------------------------------------------------------------------------
 ;   Send a VT-52 escape sequence
 ;   Input: A = command character
@@ -1155,6 +1291,24 @@ VT52_SendEscape:
                     lbsr    PutChar
 
                     rts
+
+; --------------------------------------------------------------------
+; Reverse video ON
+; VT-52 : ESC p
+; --------------------------------------------------------------------
+
+VT52_ReverseOn:
+                    lda     #'p'
+                    bra     VT52_SendEscape
+
+; --------------------------------------------------------------------
+; Reverse video OFF
+; VT-52 : ESC q
+; --------------------------------------------------------------------
+
+VT52_ReverseOff:
+                    lda     #'q'
+                    bra     VT52_SendEscape
 
 ;   ----------------------------------------------------------------------------------------------------
 ;   Clear screen
@@ -1851,15 +2005,47 @@ Vector_reserved:
 ;   \015 = $0D  return
 ;   \012 = $0A  newline
 
-STRVT52Welcome:
-                	fcc "----------------------------------------\015\012"
-                	fcc "             ALIX-32 MONITOR             \015\012"
-                	fcc "              VT-52 TERMINAL              \015\012"
-                	fcc "----------------------------------------\015\012"
-                	fcc "\015\012"
-                	fcc " Terminal mode: VT-52 enabled\015\012"
-                	fcc " Type HELP for available commands\015\012"
-                	fcc "\0"
+; --------------------------------------------------------------------
+; VT-52 Welcome screen
+
+STRVT52WelcomeTop:
+                fcc "----------------------------------------\015\012"
+                fcc "\0"
+
+STRVT52Title:
+                fcc "             ALIX-32 MONITOR             "
+                fcc "\0"
+
+STRVT52WelcomeInfo:
+                fcc "\015\012"
+                fcc "              VT-52 TERMINAL              \015\012"
+                fcc "----------------------------------------\015\012"
+                fcc "\015\012"
+                fcc " Terminal mode: VT-52 enabled\015\012"
+                fcc " Type HELP for available commands\015\012"
+                fcc "\0"
+
+; --------------------------------------------------------------------
+; VT-52 HELP strings
+
+STRVT52HelpHeader:	fcc "          ALIX-32 MONITOR - HELP          "
+                    fcc "\0"
+STRHelpSystem:		fcc "SYSTEM\0"
+STRHelpSystemCmd:	fcc "HELP      CLS       VER       MEMSIZE\0"
+STRHelpMemory:		fcc "MEMORY\0"
+STRHelpMemoryCmd1:	fcc "PEEK      POKE      DUMP      COPY\0"
+STRHelpMemoryCmd2:	fcc "ORI       ANDI      BSET      BCLR\0"
+STRHelpPrograms:	fcc "PROGRAMS\0"
+STRHelpProgramsCmd:	fcc "LIST      RUN       LOAD\0"
+STRHelpHardware:	fcc "HARDWARE\0"
+STRHelpHardwareCmd1:fcc "SETPIA    RDPIA     WRPIA\0"
+STRHelpHardwareCmd2:fcc "SW1       SW2       SW3       MEMTEST\0"
+STRHelpTerminal:	fcc "TERMINAL\0"
+STRHelpTerminalCmd:	fcc "VT52 ON             VT52 OFF\0"
+; --------------------------------------------------------------------
+
+STRHelpFooter:
+                    fcc "Type a command at the ALIX> prompt.\0"
 
 STRSystemStart		fcc	"Alix-32 16kB\015\012"
 					fcc	"Favard Laurent 2003-2026\015\012"
@@ -1933,37 +2119,6 @@ STRHelp				fcc "HELP/? : Commands list\015\012"
 					fcc	"MEMTEST: MEMory TEST\015\012"
 					fcc	"VT52   : VT52 ON or OFF\015\012"
 					fcc "\0"
-;	VT-52 terminal mode HELP
-STRHelpVT52:
-					fcc     "----------------------------------------\015\012"
-					fcc     "               ALIX-32 HELP              \015\012"
-					fcc     "----------------------------------------\015\012"
-					fcc     "\015\012"
-
-					fcc     " SYSTEM\015\012"
-					fcc     "   HELP     Commands list\015\012"
-					fcc     "   CLS      Clear screen\015\012"
-					fcc     "   VER      Monitor version\015\012"
-					fcc     "   MEMSIZE  Available memory\015\012"
-					fcc     "\015\012"
-
-					fcc     " MEMORY\015\012"
-					fcc     "   PEEK     Read memory\015\012"
-					fcc     "   POKE     Write memory\015\012"
-					fcc     "   DUMP     Dump memory\015\012"
-					fcc     "   COPY     Copy memory\015\012"
-					fcc     "\015\012"
-
-					fcc     " PROGRAMS\015\012"
-					fcc     "   LIST     List applications\015\012"
-					fcc     "   RUN      Execute program\015\012"
-					fcc     "   LOAD     Load program\015\012"
-					fcc     "\015\012"
-
-					fcc     " TERMINAL\015\012"
-					fcc     "   VT52 ON  Enable VT-52 mode\015\012"
-					fcc     "   VT52 OFF Disable VT-52 mode\015\012"
-					fcc     "\0"
 
 ;	----------------------------------------------------------------------------------------------------
 CMDHelp				fcc "?\0"
