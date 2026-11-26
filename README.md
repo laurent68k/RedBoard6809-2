@@ -40,36 +40,36 @@ The schematic is almost complete, and the printed circuit board is nearly finali
 
 ## Memory map
 
-Addr.             Size.        Signal CS     Peripheral 
+Addresse..........Size..........Signal CS.........Peripheral 
 
-$0000 - $7FFF     32 KB        /CSRAM.       RAM
+$0000 - $7FFF.....32 KB......../CSRAM.............RAM
  
-$8000 - $BBFF     15 KB        Not decoded (*) 
+$8000 - $BBFF.....15 KB........Not decoded (*) 
 
-$BC00 - $BC0F     16 bytes     /CSUSB        USB
+$BC00 - $BC0F.....16 bytes...../CSUSB.............UART-1 USB
  
-$BC10 - $BC1F     16 bytes     /CSC64        C64/UART
+$BC10 - $BC1F.....16 bytes...../CSC64.............UART-2 Optionnal
  
-$BC20 - $BC2F     16 bytes     /CSPIA        PIA 
+$BC20 - $BC2F.....16 bytes...../CSPIA.............PIA 
 
-$BC30 - $BC3F     16 bytes     /CSPTM        PTM 
+$BC30 - $BC3F.....16 bytes...../CSPTM.............PTM 
 
-$BC40 - $BF3F     768 bytes    Not decoded
+$BC40 - $BF3F.....768 bytes....Not decoded
  
-$BF00 - $BF3F     64 bytes     /CSFREE0      Free 0
+$BF00 - $BF3F.....64 bytes...../CSFREE0...........Free 0
  
-$BF40 - $BF7F     64 bytes     /CSFREE1      Free 1
+$BF40 - $BF7F.....64 bytes...../CSFREE1...........Free 1
 
-$BF80 - $BFBF     64 bytes     /CSFREE2      Free 2
+$BF80 - $BFBF.....64 bytes...../CSFREE2...........Free 2
 
-$BFC0 - $BFFF     64 bytes     /CSFREE3      Free 3 
+$BFC0 - $BFFF.....64 bytes...../CSFREE3...........Free 3 
 
-$C000 - $FFFF     16 KB        /CSROM        ROM 
+$C000 - $FFFF.....16 KB......../CSROM.............ROM 
 
 
 (*) Will be partially decoded with a second GAL and a monitor ready to use a part of this space for cardridge.
 
-FFFF +----------------------+
+FFFF +----------------------+ 
      |        ROM           |
 C000 |      /CSROM          |
      +----------------------+
