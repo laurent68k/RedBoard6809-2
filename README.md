@@ -13,7 +13,9 @@ This project is the continuation of RedBoard-1, a 6809-based SBC. The difference
 
 # A name
 
-"Alix-32" could be the name of this small project, drawn from the French language for "Appareil Léger d'Informatique eXpérimentale", a nod to the French clone Alice of the Tandy Radio Shack MC-1.
+"Alix-32" is now the name of this project, drawn from the French language for "Appareil Léger d'Informatique eXpérimentale", a nod to the French clone computer of the Tandy Radio Shack MC-1 named "Alice".
+
+See: https://en.wikipedia.org/wiki/Matra_Alice
 
 ## Status, Work in progress
 
