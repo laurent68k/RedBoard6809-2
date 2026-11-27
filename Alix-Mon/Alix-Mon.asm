@@ -3,7 +3,7 @@
 ;
 ;	Version:	2.0
 ;	Created:	2012 September 04	
-;	Updated:	2026 November 26
+;	Updated:	2026 November 27
 ;	Author:		Laurent Favard
 ;	Contact:	laurent68k@gmail.com
 ;
@@ -141,6 +141,8 @@ decimalbuffer		rmb	4										;	Scratch variable for BCD operation
 bcdbuf				rmb 5										;	Scratch variable for BCD operation
 promptLine			rmb PRTLINE_SIZE							;	CLI line buffer
 VT52Mode            rmb 1                                  		; 	VT-52 Terminal mode. 0 = disabled, 1 = enabled
+DumpLineAddress     rmb 2      									; Start address of current line
+DumpLineCount       rmb 1      									; Number of valid bytes in current line
 ;	----------------------------------------------------------------------------------------------------
 ;	Start of System ROM
 
@@ -722,6 +724,7 @@ _mnWrite2:			lbsr	SkipSpace					;	skip space from current X
 					
 ;	----------------------------------------------------------------------------------------------------
 ;	DUMP Command
+;	----------------------------------------------------------------------------------------------------
 mnDump:				lbsr	SkipSpace					;	skip space from current X				
 					lbsr	ReadHexFromString			;	read hexa value = count and store it to D
 					stb		save_count					;	only LSB in B will be used
@@ -739,6 +742,12 @@ _mnDump2:			lbsr	SkipSpace					;	skip space from current X
 					
 					tfr		d,y							;	store D (adress start) in Y										
 					
+					; Select display according to terminal mode
+                    tst     VT52Mode
+                    bne     _mnDumpVT52
+
+                    ; Original DUMP implementation Terminal ASCII mode
+
 _mnDump3:			ldb		save_count					;	reload the count
 					cmpb	#0
 					beq		_mnDumpDone
@@ -798,9 +807,193 @@ _mnDump5:			ldx		#STRNewLine
 _mnDumpDone:		ldx		#STRDone
 					lbsr	WriteString
 					lbra	Mainloop					
-					
+
+; 
+; DUMP command - VT-52 tabular display
+;
+; Input:
+;   Y = Start address
+;   save_count = Number of bytes to display
+;
+; 16 bytes per line
+
+_mnDumpVT52:
+
+                    ; No data to display?
+                    tst     save_count
+                    lbeq    _mnDumpVT52Done
+
+                    ; Display header
+                    ldx     #STRDumpHeader
+                    lbsr    WriteString
+                    ldx     #STRNewLine
+                    lbsr    WriteString
+
+_mnDumpVT52Line:
+
+                    ; Save current line address
+                    sty     DumpLineAddress
+
+                    ; Determine number of valid bytes (max 16)
+                    lda     save_count
+                    cmpa    #16
+                    bls     _mnDumpVT52Count
+
+                    lda     #16
+
+_mnDumpVT52Count:
+
+                    sta     DumpLineCount
+
+                    ; --------------------------------------------
+                    ; Display address
+                    ; --------------------------------------------
+
+                    ldd     DumpLineAddress
+                    lbsr    WriteHexByte
+
+                    tfr     b,a
+                    lbsr    WriteHexByte
+
+                    ; Six spaces after address
+                    ldb     #6
+
+_mnDumpVT52AddressPad:
+
+                    lda     #' '
+                    lbsr    PutChar
+                    decb
+                    bne     _mnDumpVT52AddressPad
+
+                    ; --------------------------------------------
+                    ; Display hexadecimal data (16 columns)
+                    ; --------------------------------------------
+
+                    lda     DumpLineCount
+                    sta     save2_reg8bits
+
+                    ldx     DumpLineAddress
+                    ldb     #16
+
+_mnDumpVT52Hex:
+
+                    tst     save2_reg8bits
+                    beq     _mnDumpVT52HexPad
+
+                    lda     ,x+
+                    lbsr    WriteHexByte
+
+                    dec     save2_reg8bits
+                    bra     _mnDumpVT52HexSep
+
+_mnDumpVT52HexPad:
+
+                    ; Empty column: two spaces
+                    lda     #' '
+                    lbsr    PutChar
+                    lbsr    PutChar
+
+_mnDumpVT52HexSep:
+
+                    decb
+                    beq     _mnDumpVT52AsciiStart
+
+                    lda     #' '
+                    lbsr    PutChar
+
+                    bra     _mnDumpVT52Hex
+
+                    ; --------------------------------------------
+                    ; Display ASCII column
+                    ; --------------------------------------------
+
+_mnDumpVT52AsciiStart:
+
+                    ; Two spaces before ASCII
+                    lda     #' '
+                    lbsr    PutChar
+                    lbsr    PutChar
+
+                    ldx     DumpLineAddress
+                    ldb     DumpLineCount
+
+_mnDumpVT52Ascii:
+
+                    cmpb    #0
+                    beq     _mnDumpVT52AsciiPadStart
+
+                    lda     ,x+
+
+                    ; Printable ASCII: $20 to $7E
+                    cmpa    #$20
+                    blo     _mnDumpVT52AsciiDot
+
+                    cmpa    #$7F
+                    bhs     _mnDumpVT52AsciiDot
+
+                    lbsr    PutChar
+                    bra     _mnDumpVT52AsciiNext
+
+_mnDumpVT52AsciiDot:
+
+                    lda     #'.'
+                    lbsr    PutChar
+
+_mnDumpVT52AsciiNext:
+
+                    decb
+                    bra     _mnDumpVT52Ascii
+
+                    ; --------------------------------------------
+                    ; Complete ASCII column with spaces
+                    ; --------------------------------------------
+
+_mnDumpVT52AsciiPadStart:
+
+                    ldb     #16
+                    subb    DumpLineCount
+
+_mnDumpVT52AsciiPad:
+
+                    cmpb    #0
+                    beq     _mnDumpVT52NextLine
+
+                    lda     #' '
+                    lbsr    PutChar
+
+                    decb
+                    bra     _mnDumpVT52AsciiPad
+
+                    ; --------------------------------------------
+                    ; Next line
+                    ; --------------------------------------------
+
+_mnDumpVT52NextLine:
+
+                    ldx     #STRNewLine
+                    lbsr    WriteString
+
+                    ; Decrease remaining byte count
+                    lda     save_count
+                    suba    DumpLineCount
+                    sta     save_count
+
+                    ; Advance address by 16 bytes
+                    leay    16,y
+
+                    tst     save_count
+                    lbne    _mnDumpVT52Line
+
+_mnDumpVT52Done:
+
+                    ldx     #STRDone
+                    lbsr    WriteString
+
+                    lbra    Mainloop
+
 ;	----------------------------------------------------------------------------------------------------
 ;	COPY Command
+;	----------------------------------------------------------------------------------------------------
 mnCopy:				lbsr	SkipSpace					;	skip space from current X				
 					lbsr	ReadHexFromString			;	read hexa value = count and store it to D
 					stb		save_count					;	only LSB in B will be used
@@ -2043,16 +2236,16 @@ STRHelpHardwareCmd2:fcc "SW1       SW2       SW3       MEMTEST\0"
 STRHelpTerminal:	fcc "TERMINAL\0"
 STRHelpTerminalCmd:	fcc "VT52 ON             VT52 OFF\0"
 ; --------------------------------------------------------------------
-
 STRHelpFooter:
                     fcc "Type a command at the ALIX> prompt.\0"
 
 STRSystemStart		fcc	"Alix-32 16kB\015\012"
 					fcc	"Favard Laurent 2003-2026\015\012"
 					fcc "\0"
-
+;	----------------------------------------------------------------------------------------------------
 STRPromptCLI		fcc	"CLI>\0"
 STRPromptVT52   	fcc "ALIX>\0"
+;	----------------------------------------------------------------------------------------------------
 
 STRNewLine			fcc	"\015\012\0"
 STRMemCalculated	fcc	"End of memory: $\0"
@@ -2071,6 +2264,11 @@ STRCountApp			fcc	"Count: \0"
 STRLoading			fcc	"Loading: at $\0"
 STRVT52On           fcc "ON\0"
 STRVT52Off          fcc "OFF\0"
+;	----------------------------------------------------------------------------------------------------
+STRDumpHeader:
+                    fcc "ADDRESS   00 01 02 03 04 05 06 07 "
+                    fcc "08 09 0A 0B 0C 0D 0E 0F  ASCII"
+                    fcb 0
 ;	----------------------------------------------------------------------------------------------------
 STRTribute          fcc "In tribute to:\015\012"
                     fcc "Jack Tramiel 1928-2012\015\012"
