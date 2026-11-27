@@ -7,7 +7,9 @@ This project is the continuation of RedBoard-1, a 6809-based SBC. The difference
 - Fixed UART 115200 bauds communication via the CPU 7.3728 MHz crystal (removed 4060 frequency divider)
 - MAX 232 removed for a modern FTDI232 UART-USB adapter.
 - Optional second UART 68B50
-- Optional PTM 68B40 asociated with a HCT4060
+- Optional PTM 68B40 
+- Optional 74HCT4060 to add /NMI clock interrupt
+- DIP Switch to select a divided frequency
 - Optional second GAL 16V8 to generate a cartdridge /CSCARD
 - 4 expansions slots
 
@@ -22,9 +24,9 @@ See: https://en.wikipedia.org/wiki/Matra_Alice
 - EKEmulator works (updated to the lastest Xcode and macOS)
 - i6809asm works (updated to the lastest Xcode and macOS)
 - CocoBasic can be assembled correctly. Tested and run on EKEmulator.
-- EKMonitor16kB can be assembled correctly. Tested and run on EKEmulator.
-
-The schematic is almost complete, and the printed circuit board is nearly finalized.
+- Alix-Mon introduced in accordance to the new memory map. VT-52 Terminal commands in progress.
+- Schematics drawed with EasyEDA: https://easyeda.com/
+- First PCB produced bu JLCPCB and received on 2026/11/07
 
 ## Specification
 
